@@ -1,4 +1,4 @@
-use std::cmp::Ordering;
+use std::collections::HashSet;
 use std::io::BufRead;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -15,33 +15,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 const YEAR: i32 = 2020;
 
-#[allow(dead_code)]
 fn part_1(xs: &[i32]) -> i32 {
-    for (i, x) in xs.iter().enumerate() {
-        for y in xs.iter().skip(i + 1) {
-            match (x + y).cmp(&YEAR) {
-                Ordering::Equal => return x * y,
-                Ordering::Less => continue,
-                Ordering::Greater => break,
-            }
+    let mut ys = HashSet::new();
+    for x in xs {
+        let y = YEAR - x;
+        if ys.contains(&y) {
+            return x * y;
         }
+        ys.insert(*x);
     }
     panic!();
 }
 
-#[allow(dead_code)]
 fn part_2(xs: &[i32]) -> i32 {
+    let zs: HashSet<i32> = xs.iter().cloned().collect();
     for (i, x) in xs.iter().enumerate() {
-        for (j, y) in xs.iter().skip(i + 1).enumerate() {
+        for y in xs.iter().skip(i + 1) {
             if (x + y) >= YEAR {
                 break;
             }
-            for z in xs.iter().skip(i + j + 1) {
-                match (x + y + z).cmp(&YEAR) {
-                    Ordering::Equal => return x * y * z,
-                    Ordering::Less => continue,
-                    Ordering::Greater => break,
-                }
+            let z = YEAR - (x + y);
+            if zs.contains(&z) {
+                return x * y * z;
             }
         }
     }
