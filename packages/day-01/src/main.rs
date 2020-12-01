@@ -24,7 +24,7 @@ fn part_1(xs: &[i32]) -> i32 {
         }
         ys.insert(*x);
     }
-    panic!();
+    unreachable!();
 }
 
 fn part_2(xs: &[i32]) -> i32 {
@@ -40,5 +40,5 @@ fn part_2(xs: &[i32]) -> i32 {
             }
         }
     }
-    panic!();
+    unreachable!();
 }
