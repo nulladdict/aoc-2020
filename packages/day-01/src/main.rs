@@ -8,37 +8,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map(|s| s.map(|x| x.parse::<i32>()))
         .collect::<Result<Result<Vec<_>, _>, _>>()??;
     xs.sort();
-    println!("{}", part_1(&xs));
-    println!("{}", part_2(&xs));
+    println!("{:?}", part_1(&xs));
+    println!("{:?}", part_2(&xs));
     Ok(())
 }
 
 const YEAR: i32 = 2020;
 
-fn part_1(xs: &[i32]) -> i32 {
+fn find(xs: &[i32], sum: i32) -> Option<i32> {
     let mut ys = HashSet::new();
     for x in xs {
-        let y = YEAR - x;
+        let y = sum - x;
         if ys.contains(&y) {
-            return x * y;
+            return Some(x * y);
         }
         ys.insert(*x);
     }
-    unreachable!();
+    None
 }
 
-fn part_2(xs: &[i32]) -> i32 {
-    let zs: HashSet<i32> = xs.iter().cloned().collect();
-    for (i, x) in xs.iter().enumerate() {
-        for y in xs.iter().skip(i + 1) {
-            if (x + y) >= YEAR {
-                break;
-            }
-            let z = YEAR - (x + y);
-            if zs.contains(&z) {
-                return x * y * z;
-            }
+fn part_1(xs: &[i32]) -> Option<i32> {
+    find(xs, YEAR)
+}
+
+fn part_2(xs: &[i32]) -> Option<i32> {
+    for (i, x) in xs[0..xs.len() - 2].iter().enumerate() {
+        match find(&xs[(i + 1)..], YEAR - x) {
+            Some(yz) => return Some(x * yz),
+            None => continue,
         }
     }
-    unreachable!();
+    None
 }
