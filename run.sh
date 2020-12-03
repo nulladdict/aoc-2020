@@ -1,2 +1,2 @@
 #!/bin/sh
-cat "packages/$1/src/input" | cargo run --release -p $1
+cat "packages/$1/src/input" | cargo run -p $1
