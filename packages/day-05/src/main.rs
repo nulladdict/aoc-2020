@@ -18,48 +18,45 @@ impl Point {
         Point(Part(0, 127), Part(0, 7))
     }
 
-    fn from(rl: usize, rh: usize, cl: usize, ch: usize) -> Self {
-        Point(Part(rl, rh), Part(cl, ch))
+    fn from(row_low: usize, row_high: usize, col_low: usize, col_high: usize) -> Self {
+        Point(Part(row_low, row_high), Part(col_low, col_high))
     }
 
     fn id(self: &Self) -> usize {
-        if self.0.0 != self.0.1 || self.1.0 != self.1.1 {
-            panic!("Can't get id from unfinished search");
-        }
+        assert!(self.0 .0 == self.0 .1, "row low != row high");
+        assert!(self.1 .0 == self.1 .1, "column low != column high");
         self.0 .0 * 8 + self.1 .1
     }
 
     fn front(self: &Self) -> Self {
-        let Point(Part(rl, rh), Part(cl, ch)) = *self;
-        Point::from(rl, (rh + rl) / 2, cl, ch)
+        let Point(Part(row_low, row_high), Part(col_low, col_high)) = *self;
+        Point::from(row_low, (row_high + row_low) / 2, col_low, col_high)
     }
 
     fn back(self: &Self) -> Self {
-        let Point(Part(rl, rh), Part(cl, ch)) = *self;
-        Point::from((rh + rl) / 2 + 1, rh, cl, ch)
+        let Point(Part(row_low, row_high), Part(col_low, col_high)) = *self;
+        Point::from((row_high + row_low) / 2 + 1, row_high, col_low, col_high)
     }
 
     fn left(self: &Self) -> Self {
-        let Point(Part(rl, rh), Part(cl, ch)) = *self;
-        Point::from(rl, rh, cl, (cl + ch) / 2)
+        let Point(Part(row_low, row_high), Part(col_low, col_high)) = *self;
+        Point::from(row_low, row_high, col_low, (col_low + col_high) / 2)
     }
 
     fn right(self: &Self) -> Self {
-        let Point(Part(rl, rh), Part(cl, ch)) = *self;
-        Point::from(rl, rh, (cl + ch) / 2 + 1, ch)
+        let Point(Part(row_low, row_high), Part(col_low, col_high)) = *self;
+        Point::from(row_low, row_high, (col_low + col_high) / 2 + 1, col_high)
     }
 }
 
 fn partition(pass: &[char], point: Point) -> Point {
-    if pass.len() == 0 {
-        return point;
-    }
-    match pass[0] {
-        'F' => return partition(&pass[1..], point.front()),
-        'B' => return partition(&pass[1..], point.back()),
-        'L' => return partition(&pass[1..], point.left()),
-        'R' => return partition(&pass[1..], point.right()),
-        _ => return point,
+    match pass.get(0) {
+        Some('F') => return partition(&pass[1..], point.front()),
+        Some('B') => return partition(&pass[1..], point.back()),
+        Some('L') => return partition(&pass[1..], point.left()),
+        Some('R') => return partition(&pass[1..], point.right()),
+        Some(_) => panic!("Unknown direction"),
+        None => return point,
     }
 }
 
