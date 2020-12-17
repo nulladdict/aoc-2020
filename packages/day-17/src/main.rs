@@ -1,5 +1,5 @@
 use itertools::{iproduct, Itertools};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::io::Read;
 
@@ -13,12 +13,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn part_1(chunk: &str) -> usize {
     let initial = <(i64, i64, i64)>::parse_field(chunk);
-    Point::make_n_steps(initial, 6).len()
+    Point::make_n_steps_faster(initial, 6).len()
 }
 
 fn part_2(chunk: &str) -> usize {
     let initial = <(i64, i64, i64, i64)>::parse_field(chunk);
-    Point::make_n_steps(initial, 6).len()
+    Point::make_n_steps_faster(initial, 6).len()
 }
 
 trait Point: Eq + Hash + Clone + Sized {
@@ -58,6 +58,29 @@ trait Point: Eq + Hash + Clone + Sized {
                 .flat_map(Self::open_neighbourhood)
                 .unique()
                 .filter(|p| p.is_active(&active))
+                .collect()
+        })
+    }
+
+    fn map_active(self, count: usize, active: &HashSet<Self>) -> Option<Self> {
+        match (count, active.contains(&self)) {
+            (3, _) => Some(self),
+            (2, true) => Some(self),
+            _ => None,
+        }
+    }
+
+    fn make_n_steps_faster(initial: HashSet<Self>, n: usize) -> HashSet<Self> {
+        (0..n).fold(initial, |active, _| {
+            active
+                .iter()
+                .flat_map(Self::open_neighbourhood)
+                .fold(HashMap::new(), |mut group, p| {
+                    *group.entry(p).or_insert(0) += 1;
+                    group
+                })
+                .into_iter()
+                .filter_map(|(point, count)| point.map_active(count, &active))
                 .collect()
         })
     }
