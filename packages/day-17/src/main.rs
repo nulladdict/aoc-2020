@@ -55,8 +55,7 @@ trait Point: Eq + Hash + Clone + Sized {
         (0..n).fold(initial, |active, _| {
             active
                 .iter()
-                .cloned()
-                .chain(active.iter().flat_map(Self::open_neighbourhood))
+                .flat_map(Self::open_neighbourhood)
                 .unique()
                 .filter(|p| p.is_active(&active))
                 .collect()
